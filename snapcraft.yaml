@@ -1,0 +1,79 @@
+name:  x-bomber
+title:  X-Bomber
+version: "0.84"
+summary:   X-Bomber is a free video game for Windows
+description: |
+  X-Bomber is a free video game for Windows. It is a 2D, vertical-scrolling Space Shooter, based on the 1980s Japanese sci-fi show Star Fleet. X-Bomber is the main spacecraft in the show and in the game. The game has sharp controls, fast and smooth gameplay, attractive graphics, explosive sound and a huge range of enemies, weapons, allies, environments and objectives along with diligent balancing. X-Bomber is more than just a shoot-em-up, combining fast movement with a wide view of your surroundings, incorporating multiple mission objective types. You choose when to change ship. Choose whether to use firepower, mobility, durability, a balance of each, or force of numbers. Use amazing special and upgrade weapons, devastating secondary attacks or call on your allies for support.
+
+grade: stable
+icon: x-bomber_icon.png
+
+base: core18
+confinement: strict
+
+architectures:
+  - build-on: amd64
+  - build-on: i386
+
+environment:
+  WINEDLLOVERRIDES: "$WINEDLLOVERRIDES;mscoree,mshtml="    # Prevent pop-ups about Wine Mono and Wine Gecko
+  SOMMELIER_STRICT: "1"                                    # Make Sommelier exit when unset variable is used. (useful to find bugs in sommelier)
+
+apps:
+  x-bomber:
+    extensions: [ gnome-3-28 ]
+    command: bin/sommelier run-exe
+    environment:
+      RUN_EXE: "xb2-084.exe"
+      #INSTALL_EXE: "$SNAP/Blockout25_setup.exe"
+      #INSTALL_FLAGS: "/S"
+    plugs:
+      - home
+      - network
+      - network-bind
+      - removable-media
+      - cups
+  # The wine command can be used to run applications inside the wine
+  # environment that this snap uses.
+  #
+  # For example, users can configure the wine environment of this snap
+  # by running `myapp.wine winecfg`.
+  wine:
+    extensions: [ gnome-3-28 ]
+    command: bin/sommelier
+    plugs:
+      - home
+      - network
+      - network-bind
+      - removable-media
+      - cups
+ # The winetricks command can be used to run winetricks inside the wine
+  # environment that this snap uses.
+  winetricks:
+    extensions: [ gnome-3-28 ]
+    command: bin/sommelier winetricks
+    plugs:
+      - network
+
+parts:
+  installer:
+    plugin: dump
+    source: ./
+
+  # The sommelier script helps you snap Windows applications using Wine. It 
+  # initializes and configures Wine and installs the Windows application.
+  sommelier:
+    plugin: make
+    source: https://github.com/snapcrafters/sommelier-core.git
+
+# These plugs are used to connect the snap to the wine runtime.
+plugs:
+  wine-runtime:
+    interface: content
+    target: $SNAP/wine-runtime
+    default-provider: wine-platform-runtime
+  wine-5-stable:
+    interface: content
+    target: $SNAP/wine-platform
+    default-provider: wine-platform-5-stable
+
